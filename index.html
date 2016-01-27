@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Xposed</title>
+    <link rel="shortcut icon" href="../favicon.ico">
+		<link rel="stylesheet" type="text/css" href="css/normalize.css" />
+		<link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.3.0/css/font-awesome.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/demo.css" />
+		<link rel="stylesheet" type="text/css" href="css/component.css" />
+
+
+    <script type="text/javascript">
+      var os = require('os');
+      var globals = {};
+      var path =require('path');
+      var fs = require('fs');
+      var proc = require('process');
+      var process = require('child_process');
+      var mmd = require('musicmetadata');
+      var vol = require('vol');
+      // initialization code here
+      // if the localStorage object does not exits then it means that the person is opening for the first time
+      globals.bgImage = "";
+      globals.addingMusic = false;
+      globals.songslist = {};
+      globals.songsQueue = [];
+      globals.albumArtsArr = [];
+      var batFiles = {};
+      batFiles.M3U = "StealthAudioPlayer.m3u";
+      batFiles.Start = "StealthAudioPlayer_Start.bat";
+      batFiles.Stop = "StealthAudioPlayer_Stop.bat";
+      batFiles.Next = "StealthAudioPlayer_Next.bat";
+      batFiles.Prev = "StealthAudioPlayer_Prev.bat";
+      batFiles.PlayPause = "StealthAudioPlayer_Pause.bat";
+      batFiles.Install = "InstallStealthAudioPlayer.bat";
+      if(localStorage["Root"]){
+        var temp = localStorage["Root"];
+        globals.Root = temp;
+        batFiles.Root = globals.Root + 'SAP\\';
+      }else{
+        // Application opened First time
+        globals.Root = proc.env.USERPROFILE + "\\Documents\\Xposed Audio Player\\";
+
+        // checking if Xposed Audio Player folder exists and creating if doesn't exist
+        var folders = fs.readdirSync(proc.env.USERPROFILE + "\\Documents");
+        var exists = false;
+        for(var i = 0; i<folders.length ; i++){
+          if(folders[i] == "Xposed Audio Player"){
+            exists = true;
+          }
+        }
+        if(exists){
+          process.execSync("powershell rm -r '" + globals.Root + "'");
+        }
+        fs.mkdirSync(globals.Root);
+
+        var Root = 'C:\\Program Files\\Xposed Audio Player\\windows-x32\\';
+
+        var regfile = "32bit.reg";
+        var folders = fs.readdirSync("C:/");
+        for(var i=0; i < folders.length; i++){
+          console.log(folders[i]);
+          if(folders[i] === "Program Files (x86)"){
+            Root = 'C:\\Program Files (x86)\\Xposed Audio Player\\windows-x32\\';
+            regfile = "64bit.reg";
+          }
+        }
+
+        // copy the SAP folder to user documents / xposed audio player
+        process.execSync("powershell cp -r '" + Root + "SAP' '" + globals.Root + "'");
+
+        // copy the album arts folder to documents / xposed audio player
+        process.execSync("powershell cp -r '" + Root + "albumarts' '" + globals.Root + "'");
+
+
+        // Application opened for the first time
+        // lets run install.bat
+        batFiles.Root = globals.Root + 'SAP\\';
+
+        // Executing the regFile
+        //process.execSync("powershell regedit.exe '" + globals.Root + regfile + "'");
+
+        // Executing the install file
+        process.execFileSync(batFiles.Root + "" + batFiles.Install,{"cwd": batFiles.Root});
+        //localStorage["globals"] = JSON.stringify({});
+        localStorage['Root'] = globals.Root;
+
+        // cleaning up the m3u file
+        var currPosString = [255,254,35,0,32,0,83,0,116,0,101,0,97,0,108,0,116,0,104,0,65,0,117,0,100,0,105,0,111,0,80,0,108,0,97,0,121,0,101,0,114,0,32,0,99,0,117,0,114,0,114,0,101,0,110,0,116,0,32,0,116,0,114,0,97,0,99,0,107,0,32,0,112,0,111,0,115,0,105,0,116,0,105,0,111,0,110,0,32,0,97,0,116,0,32,0,48,0,13,0,10,0];
+
+        var origbuf = new Buffer(currPosString);
+        //console.log(dataa);
+        fs.writeFileSync(batFiles.Root + "" + batFiles.M3U, origbuf ,{encoding:null});
+      }
+      globals.batFiles = batFiles;
+      globals.albumArts = globals.Root + "albumarts\\";
+
+
+
+      // var currPosString = [255,254,35,0,32,0,83,0,116,0,101,0,97,0,108,0,116,0,104,0,65,0,117,0,100,0,105,0,111,0,80,0,108,0,97,0,121,0,101,0,114,0,32,0,99,0,117,0,114,0,114,0,101,0,110,0,116,0,32,0,116,0,114,0,97,0,99,0,107,0,32,0,112,0,111,0,115,0,105,0,116,0,105,0,111,0,110,0,32,0,97,0,116,0,32,0,48,0,13,0,10,0];
+      //
+      //     var origbuf = new Buffer(currPosString);
+      //     //console.log(dataa);
+      //     fs.writeFile(batFiles.Root + "" + batFiles.M3U, origbuf ,{encoding:null}, function (err) {
+      //         if (err) throw err;
+      //         console.log('It\'s saved!');
+      //     });
+
+      var files = fs.readdirSync(globals.Root);
+      //check for albumarts folder and create folder is do not exist
+      if(files.indexOf("albumarts") == -1){
+        fs.mkdir("albumarts",function(){
+          console.log("albumarts folder created");
+        });
+      }
+
+      // populating the albumArtsarr
+      fs.readdir(globals.albumArts, function (err,data) {
+        if(!err){
+          globals.albumArtsArr = data;
+        }
+      });
+
+      //console.log(files);
+      // check for metadata.json and read its contents into globals.songslist if it exists
+      if(files.indexOf("metadata.json") >= 0){
+        fs.readFile(globals.Root + "metadata.json",function(err,data){
+          //console.log(err);
+          globals.songslist = JSON.parse(data);
+          renderAllSongs($("#allSongsList"));
+          $("#allSongsList").attr("data-rendered","yep");
+          //console.log(globals.songslist);
+
+          // check for metadata.json and read its contents into globals.songslist if it exists
+          if(files.indexOf("playlists.json") >= 0){
+            fs.readFile(globals.Root + "playlists.json",function(err,data){
+              //console.log(err);
+              globals.playlists = JSON.parse(data);
+              var list = $("#ctxtplaylists");
+              Object.keys(globals.playlists).forEach(function (key) {
+                var arr = globals.playlists[key];
+                console.log(arr);
+                addPlaylistItem(key,arr);
+              });
+              //$("#playlistItems").append();
+              //$("#ctxtplaylists").append("<li data-name='"+ key +"'>" + key+ "</li>");
+            });
+          }
+
+        });
+      }
+
+
+
+
+    </script>
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/easing.js"></script>
+    <script type="text/javascript" src="js/utils.js"></script>
+    <script type="text/javascript" src="js/snap.svg-min.js"></script>
+    <script type="text/javascript" src="js/svgicons-config.js"></script>
+  	<script type="text/javascript" src="js/svgicons.js"></script>
+    <script type="text/javascript" src="js/musicmetadata.js"></script>
+    <script type="text/javascript" src="js/dropsong.js"></script>
+    <script type="text/javascript"  src="js/controls.js"></script>
+    <script type="text/javascript" src="js/songQueue.js"></script>
+    <script type="text/javascript" src="js/TweenMax.min.js">
+    <script type="text/javascript" src="js/jquery.gsap.min.js"></script>
+
+    </script>
+
+  </head>
+  <body>
+      <div class="navcenter">
+        <div class="songsList">
+          <div class="whichSongList">
+            <span id="allSongsButton">All Songs</span>
+            <span id="playlistButton">Playlists</span>
+          </div>
+          <div id="allSongsList" data-rendered="nope"></div>
+          <div id="playlists">
+            <div id="playlistItems">
+
+            </div>
+            <div id="playlistBottom">
+              <input type="text" name="name" value="" id="newPlaylist" placeholder="playlist">
+              <div id="createPL">
+                Create
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="toolbar">
+          <section id="listarrow" class="si-icons si-icons-default">
+            <span class="si-icon si-icon-nav-up-arrow" data-icon-name="navUpArrow"></span>
+          </section>
+          <div id="settings">
+            Settings
+          </div>
+          <input name="search" id="search" type="search" placeholder="Search">
+          <button id="minimize" class="cbutton cbutton--effect-ilinka">
+            <i class="cbutton__icon fa fa-fw fa-minus"></i>
+            <span class="cbutton__text">Minus</span>
+          </button>
+          <button id="close" class="cbutton cbutton--effect-ilinka">
+            <i class="cbutton__icon fa fa-fw fa-remove"></i>
+            <span class="cbutton__text">Remove</span>
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="settingList">
+        <div class="settingItem" id="addMusic">
+          Add Music
+        </div>
+      </div>
+
+
+      <input type="file" name="folder" value="" style="display:none" id="folderSelect" nwdirectory />
+
+      <!-- Search results to be displayed in this div -->
+      <div class="searchResults" style="display:none;z-index:5000"></div>
+
+
+      <div id="rightClkBox" style="display:none">
+        <div id="playFMcontext">
+          Play
+        </div>
+        <h4>Add to Playlist</h4>
+        <ul id="ctxtplaylists">
+        </ul>
+        <div id="addPLctxt">
+          Create
+        </div>
+
+      </div>
+
+      <div id="delCtxtBox" style="display:none">
+        Delete
+      </div>
+      <div class="box">
+        <div id="nowPlaying"></div>
+        <center>
+        <button id="previous" class="cbutton cbutton--effect-stoja cbutton--effect-stoja-left">
+          <i class="cbutton__icon fa fa-fw fa-step-backward"></i>
+          <span class="cbutton__text">Save</span>
+        </button>
+        <button id="play" class="cbutton cbutton--circle ">
+          <section class="si-icons si-icons-default">
+            <span class="si-icon si-icon-play" data-icon-name="play"></span>
+          </section>
+          <span class="cbutton__text">Copy</span>
+        </button>
+        <button id="next" class="cbutton cbutton--effect-stoja cbutton--effect-stoja-right">
+          <i class="cbutton__icon fa fa-fw fa-step-forward"></i>
+          <span class="cbutton__text">Paste</span>
+        </button>
+      </center>
+      <input type="range" min="0" max="100" step="1" id="volumeBar">
+      </div>
+
+
+  </body>
+</html>

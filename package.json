@@ -1,0 +1,66 @@
+{
+    "webexe_settings": {
+        "linux-x32": false, 
+        "export_dir": "D:\\myy sets", 
+        "windows-x64": false, 
+        "uncompressed_folder": false, 
+        "download_dir": "D:\\Projects\\node\\Executables\\nwjs-v0.12.3-win-x64", 
+        "nw_compression_level": 0, 
+        "mac-x32": false, 
+        "custom_script": "", 
+        "windows-x32": true, 
+        "mac-x64": false, 
+        "nw_version": "0.12.3", 
+        "force_download": false, 
+        "linux-x64": false
+    }, 
+    "description": "", 
+    "nodejs": true, 
+    "additional_trust_anchors": [
+        ""
+    ], 
+    "inject-js-end": "", 
+    "node-remote": "", 
+    "dependencies": {
+        "vol": "^2.1.1", 
+        "musicmetadata": "^2.0.2"
+    }, 
+    "webkit": {
+        "page-cache": false, 
+        "java": false, 
+        "plugin": false
+    }, 
+    "js-flags": "", 
+    "app_name": "Xposed Audio Player", 
+    "name": "xposed", 
+    "user-agent": "", 
+    "single-instance": true, 
+    "window": {
+        "fullscreen": false, 
+        "resizable": false, 
+        "title": "Xposed", 
+        "always-on-top": false, 
+        "frame": false, 
+        "show": true, 
+        "kiosk": false, 
+        "kiosk_emulation": false, 
+        "exe_icon": "default.png", 
+        "visible": true, 
+        "as_desktop": false, 
+        "toolbar": false, 
+        "mac_icon": "", 
+        "position": "center", 
+        "show_in_taskbar": true, 
+        "height": 475, 
+        "width": 400, 
+        "transparent": false, 
+        "icon": "default.png"
+    }, 
+    "version": "0.1.0", 
+    "snapshot": "", 
+    "keywords": [], 
+    "inject-js-start": "", 
+    "main": "index.html", 
+    "chromium-args": "--enable-threaded-compositing  ", 
+    "node-main": ""
+}
