@@ -20,7 +20,7 @@ function addDragDropListener(element, callback) {
 addDragDropListener(document, function (files) {
     var file = files;
     var curfile;
-
+    var DOM_allSongsList =  $("#allSongsList");
     var callbackfn = function(err,result){
       console.log(err);
       if (!err){
@@ -78,6 +78,7 @@ addDragDropListener(document, function (files) {
 
         // Rendering the item to the list
         //addRenderItem($("#nowPlayingList"),curfile.path);
+        addAllSongsItem(DOM_allSongsList,tosave, curfile.path);
 
 
       }
@@ -96,21 +97,4 @@ addDragDropListener(document, function (files) {
     curfile = file.shift();
       var mm = musicmetadata(curfile, callbackfn);
 
-    // fs.readFile(batFiles.Root + "" + batFiles.M3U,function (err, data) {
-    //     if (err) throw err;
-    //     //Reading all the buffers
-    //     //var zeroBuf = arrToBuf(currPosString);
-    //     var origbuf = data;
-    //     var songBuf = nameToBuf(file.path);
-    //     var totalLen = data.length + songBuf.length;
-    //     var finaldata = Buffer.concat([origbuf,songBuf], totalLen);
-    //     //console.log(dataa);
-    //
-    //     fs.writeFile(batFiles.Root + "" + batFiles.M3U, finaldata ,{encoding:null}, function (err) {
-    //         if (err) throw err;
-    //         console.log('It\'s saved!');
-    //         var songlist = globals.songsQueue;
-    //         renderList($(".songsList"),songlist);
-    //     });
-    // });
 });
