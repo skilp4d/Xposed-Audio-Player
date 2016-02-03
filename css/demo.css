@@ -14,25 +14,6 @@
 @font-face {
 	font-weight: normal;
 	font-style: normal;
-	font-family: 'raleway';
-	src:url('../fonts/raleway/Raleway-Bold.ttf') format('truetype');
-	src:url('../fonts/raleway/Raleway-Medium.ttf') format('truetype');
-	src:url('../fonts/raleway/Raleway-Light.ttf') format('truetype');
-	src:url('../fonts/raleway/Raleway-SemiBold.ttf') format('truetype');
-	src:url('../fonts/raleway/Raleway-Thin.ttf') format('truetype');
-}
-
-
-@font-face {
-	font-weight: normal;
-	font-style: normal;
-	font-family: 'bebas';
-	src:url('../fonts/bebas_neue/BebasNeue.otf');
-}
-
-@font-face {
-	font-weight: normal;
-	font-style: normal;
 	font-family: 'sansation-bold';
 	src:url('../fonts/sansation/Sansation_Bold.ttf') format('truetype');
 }
@@ -67,18 +48,7 @@
 	src:url('../fonts/sansation/Sansation_Light_Italic.ttf') format('truetype');
 }
 
-@font-face {
-	font-weight: normal;
-	font-style: normal;
-	font-family: 'Mohave-regular';
-	src:url('../fonts/Mohave/Mohave.otf');
-}
-@font-face {
-	font-weight: normal;
-	font-style: normal;
-	font-family: 'Mohave-Bold';
-	src:url('../fonts/Mohave/Mohave-SemiBold.otf');
-}
+
 
 *, *:after, *:before { -webkit-box-sizing: border-box; box-sizing: border-box; }
 .clearfix:before, .clearfix:after { content: ''; display: table; }
@@ -89,7 +59,7 @@ body {
 	color: #f0f0f0;
 	font-weight: 500;
 	font-size: 1em;
-	font-family: 'Raleway', Arial, sans-serif;
+	font-family: Arial, sans-serif;
 	//-webkit-app-region: drag;
 }
 

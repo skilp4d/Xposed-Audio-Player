@@ -41,45 +41,8 @@
         // Application opened First time
         globals.Root = proc.env.USERPROFILE + "\\Documents\\Xposed Audio Player\\";
 
-        // checking if Xposed Audio Player folder exists and creating if doesn't exist
-        var folders = fs.readdirSync(proc.env.USERPROFILE + "\\Documents");
-        var exists = false;
-        for(var i = 0; i<folders.length ; i++){
-          if(folders[i] == "Xposed Audio Player"){
-            exists = true;
-          }
-        }
-        if(exists){
-          process.execSync("powershell rm -r '" + globals.Root + "'");
-        }
-        fs.mkdirSync(globals.Root);
-
-        var Root = 'C:\\Program Files\\Xposed Audio Player\\windows-x32\\';
-
-        var regfile = "32bit.reg";
-        var folders = fs.readdirSync("C:/");
-        for(var i=0; i < folders.length; i++){
-          console.log(folders[i]);
-          if(folders[i] === "Program Files (x86)"){
-            Root = 'C:\\Program Files (x86)\\Xposed Audio Player\\windows-x32\\';
-            regfile = "64bit.reg";
-          }
-        }
-
-        // copy the SAP folder to user documents / xposed audio player
-        process.execSync("powershell cp -r '" + Root + "SAP' '" + globals.Root + "'");
-
-        // copy the album arts folder to documents / xposed audio player
-        process.execSync("powershell cp -r '" + Root + "albumarts' '" + globals.Root + "'");
-
-
-        // Application opened for the first time
         // lets run install.bat
         batFiles.Root = globals.Root + 'SAP\\';
-
-        // Executing the regFile
-        //process.execSync("powershell regedit.exe '" + globals.Root + regfile + "'");
-
         // Executing the install file
         process.execFileSync(batFiles.Root + "" + batFiles.Install,{"cwd": batFiles.Root});
         //localStorage["globals"] = JSON.stringify({});
