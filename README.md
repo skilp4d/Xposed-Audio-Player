@@ -22,6 +22,6 @@ Create the following document structure
   without the quotes to open the player.
   
   
-  A binary of Xposed Audio Player is awailable at https://sourceforge.net/projects/xposed-audio-player/
+  A binary of Xposed Audio Player is available at https://sourceforge.net/projects/xposed-audio-player/
   
   
